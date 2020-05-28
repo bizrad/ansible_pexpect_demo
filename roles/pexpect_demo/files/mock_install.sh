@@ -17,7 +17,7 @@ if test -f "$FILE"; then
     exit 0
 fi
 
-echo "This is a bash script but let's pretend it's a compiled binary program"
+echo "This is a bash script but let's pretend it's a compiled binary program we can't use a jinja template on"
 # This is a bad program so we don't hide password input with -s
 read -p "Please enter your password: " PASSWORD_CHECK
 

@@ -144,6 +144,7 @@ def run_pexpect(script_path, options, commands, password, timeout=300):
             # Send password
             child.sendline(password)
         # Increase timeout for longer running interactions after quick initial ones
+        # NOTE: Always use a timeout with automation, a huge timeout is better than not catching something stuck
         child.timeout = timeout
         try:
             # Look for program internal prompt or new config dialog

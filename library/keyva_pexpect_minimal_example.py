@@ -35,6 +35,7 @@ def main():
 def run_pexpect(password):
     import pexpect
     child = pexpect.spawn('/path/to/myscript.sh', encoding='utf-8')
+    # NOTE: Always use a timeout with automation, a huge timeout is better than not catching something stuck
     child.timeout = 60
     child.expect(r"Enter password\:")
     child.sendline(password)
@@ -47,6 +48,16 @@ def run_pexpect(password):
     # child.before contains the text between the last two expect statements up to the buffer limit
     exit_dialog = child.before.strip()
     return exit_dialog
+
+"""
+# How to use python module across multiple Ansible library modules
+# See files in module_utils/python_module_example
+import python_module_example
+foo = python_module_example.test.test_function()
+# OR
+from python_module_example.test import test_function
+foo = test_function()
+"""
 
 
 # Using this is best practice so that you could import this

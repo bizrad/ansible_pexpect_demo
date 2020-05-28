@@ -166,6 +166,7 @@ def run_pexpect(script_path, password, timeout=60, mock_failure=None):
             else:
                 raise RuntimeError("This program is really bad and doesn't even tell us about bad passwords...")
             # Set the timeout to run the main program
+            # NOTE: Always use a timeout with automation, a huge timeout is better than not catching something stuck
             child.timeout = timeout
             while True:
                 # Note that using the pseudo tty causes \r\n line endings even on linux
