@@ -1,0 +1,19 @@
+---
+- name: "Run the demo"
+  hosts: localhost
+  connection: local
+  become: no
+  gather_facts: false
+  tasks:
+    - name: "Set demo facts - for real use this should be from a vault load"
+      set_fact:
+        example_password: "RHUG2020"
+        pexpect_demo_script_dir: "./roles/pexpect_demo/files/"
+      no_log: true
+
+    - name: "Run our pexpect_demo role"
+      include_role:
+        name: pexpect_demo
+      vars:
+        pexpect_demo_password: "{{ example_password }}"
+

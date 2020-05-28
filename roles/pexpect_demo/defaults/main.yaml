@@ -1,0 +1,4 @@
+---
+# defaults file for roles/pexpect_demo
+pexpect_demo_password: "none"
+pexpect_demo_script_dir: "./"

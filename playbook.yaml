@@ -1,0 +1,34 @@
+---
+- name: "Run the demo"
+  hosts: all
+  become: no
+  tasks:
+    - name: Install EPEL on CentOS 7
+      package:
+        name: "epel-release"
+        state: present
+      become: yes
+      when: ansible_distribution == "CentOS" and ansible_distribution_version[0] == "7"
+
+    - name: "Ensure python-pip package is installed"
+      package:
+        # python 2 uses python-pip, python3 is python3-pip in RHEL/CentOS
+        name: "python{% if ansible_python_version[0] == '3' %}3{% else %}{% endif %}-pip"
+        state: present
+      become: yes
+
+    - name: "Ensure proper python modules are installed on remote host"
+      pip:
+        name: pexpect
+      become: yes
+
+    - name: "Set demo facts - for real use this should be from a vault load"
+      set_fact:
+        example_password: "RHUG2020"
+      no_log: true
+
+    - name: "include_role: pexpect_demo"
+      include_role:
+        name: pexpect_demo
+      vars:
+        pexpect_demo_password: "{{ example_password }}"

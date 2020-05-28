@@ -1,0 +1,126 @@
+---
+# tasks file for roles/pexpect_demo
+#######################
+#### INITIAL SETUP ####
+#######################
+- debug:
+    msg: "Initial setup section of pexpect_demo role main.yaml"
+
+- name: "Ensure that a password was provided and not set to value from defaults file"
+  assert:
+    that: pexpect_demo_password != "none"
+    msg: "You must provide a password using the pexpect_demo_password variable"
+
+- name: "Copy our interactive mock script to the remote host"
+  copy:
+    src: "mock_install.sh"
+    dest: "{{ pexpect_demo_script_dir }}mock_install.sh"
+    mode: "755"
+
+- name: "Copy our interactive mock_cli script to the remote host"
+  copy:
+    src: "mock_cli.sh"
+    dest: "{{ pexpect_demo_script_dir }}mock_cli.sh"
+    mode: "755"
+
+########################################################
+#### EXAMPLE OF AUTOMATING AN INTERACTIVE INSTALLER ####
+########################################################
+
+- debug:
+    msg: "Examples automating an interactive installer"
+
+- name: "Run keyva_pexpect_install module - successful mock install"
+  keyva_pexpect_install:
+    path: "{{ pexpect_demo_script_dir }}mock_install.sh"
+    password: "{{ pexpect_demo_password }}"
+    timeout: 5
+
+- name: "Run keyva_pexpect_install module again - already installed no changes detected - idempotent"
+  keyva_pexpect_install:
+    path: "{{ pexpect_demo_script_dir }}mock_install.sh"
+    password: "{{ pexpect_demo_password }}"
+    timeout: 5
+
+- name: "remove mock install file"
+  file:
+    path: '/tmp/pexpect_mock_demo'
+    state: absent
+
+- name: "Run keyva_pexpect_install module - show error abort failure"
+  keyva_pexpect_install:
+    path: "{{ pexpect_demo_script_dir }}mock_install.sh"
+    password: "{{ pexpect_demo_password }}"
+    timeout: 5
+    mock_failure: "error_abort"
+  ignore_errors: true
+
+#############################################
+#### NOW LET'S COMPARE TO ANSIBLE EXPECT ####
+#############################################
+- debug:
+    msg: "Compare with ansible expect module"
+
+# This works, but we can't control:
+#   What we return as variables
+#   How we handle error messages
+#   Dealing with really bad code
+#   Dealing with prompts that don't consistently appear
+- name: "Run ansible expect module with mock_install.sh - This works!"
+  expect:
+    command: "{{ pexpect_demo_script_dir }}mock_install.sh"
+    responses:
+      "Please enter your password": "{{ pexpect_demo_password }}"
+      # What if there are multiple prompts like this
+      #  and we don't know if they will appear?
+      "(?i)do you wish to continue": "y"
+
+- name: "remove mock install file"
+  file:
+    path: '/tmp/pexpect_mock_demo'
+    state: absent
+
+- name: "Run ansible expect module with mock_install.sh and a bad password - should fail"
+  expect:
+    command: "{{ pexpect_demo_script_dir }}mock_install.sh"
+    responses:
+      "Please enter your password": "bad_password"
+      "(?i)do you wish to continue": "y"
+
+- name: "Run keyva_pexpect_install module with bad password - fails properly"
+  keyva_pexpect_install:
+    path: "{{ pexpect_demo_script_dir }}mock_install.sh"
+    password: "bad_password"
+    timeout: 5
+  ignore_errors: true
+
+################################################
+#### LET'S TRY AUTOMATING A CLI CONFIG TOOL ####
+################################################
+
+- debug:
+    msg: "Show the mock CLI usage"
+
+- name: "Run keyva_pexpect_cli module - changes detected"
+  keyva_pexpect_cli:
+    path: "{{ pexpect_demo_script_dir }}mock_cli.sh"
+    options: "-o myoption"
+    password: "{{ pexpect_demo_password }}"
+    commands:
+      - "set minheap 1024m"
+      - "set maxheap 5120m"
+      - "set port 7000"
+      - "set webport 80"
+    timeout: 5
+
+- name: "Run keyva_pexpect_cli module again - NO changes detected - idempotent"
+  keyva_pexpect_cli:
+    path: "{{ pexpect_demo_script_dir }}mock_cli.sh"
+    options: "mock_no_changes"
+    password: "{{ pexpect_demo_password }}"
+    commands:
+      - "set minheap 1024m"
+      - "set maxheap 5120m"
+      - "set port 7000"
+      - "set webport 80"
+    timeout: 5
