@@ -49,15 +49,16 @@ def run_pexpect(password):
     exit_dialog = child.before.strip()
     return exit_dialog
 
-"""
-# How to use python module across multiple Ansible library modules
-# See files in module_utils/python_module_example
-import python_module_example
-foo = python_module_example.test.test_function()
-# OR
-from python_module_example.test import test_function
-foo = test_function()
-"""
+
+def module_example():
+    # How to use python module across multiple Ansible library modules
+    # See files in module_utils/python_module_example
+    # these imports might look bad unless you mark module_utils as a sources root in your IDE
+    import python_module_example
+    foo = python_module_example.test.test_function()
+    # OR
+    from python_module_example.test import test_function
+    foo = test_function()
 
 
 # Using this is best practice so that you could import this
