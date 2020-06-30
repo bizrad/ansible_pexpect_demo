@@ -13,7 +13,7 @@ Running the Example
 ```
 # Vagrant VM run
 $ vagrant up
-$ ansible-playbook -v -i "192.168.0.115," ./playbook.yaml
+$ ansible-playbook -v -i "192.168.0.115," -u vagrant ./playbook.yaml
 
 # Localhost run
 # (install the pexpect module with pip first)
